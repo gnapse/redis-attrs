@@ -8,9 +8,9 @@ Gem::Specification.new do |gem|
   gem.version       = Redis::Attrs::VERSION
   gem.authors       = ["Ernesto Garcia"]
   gem.email         = ["gnapse@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.description   = %q{A module that allows Ruby objects to define attributes backed by a Redis data store. Works with any class or ORM.}
+  gem.summary       = %q{Add persistent object attributes backed by redis}
+  gem.homepage      = "http://github.com/gnapse/redis-attrs"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }

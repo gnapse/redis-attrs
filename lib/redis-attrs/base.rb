@@ -5,13 +5,14 @@ class Redis
     class Base
 
       def initialize(klass, name, type)
-        deserializer = deserialize(type)
+        @klass, @name, @type = klass, name, type
+        attr = self
         raise ArgumentError, "[Redis Attrs] Invalid type #{type}" if deserializer.nil?
 
         # Define the getter
         klass.send(:define_method, name) do
           value = redis.get("#{klass.redis_key_prefix}:#{id}:#{name}")
-          value.nil? ? nil : deserializer.call(value)
+          value.nil? ? nil : attr.deserializer.call(value)
         end
 
         # Define the setter
@@ -24,28 +25,19 @@ class Redis
         end
       end
 
-      private
-
       def redis
         Redis::Attrs.redis
       end
 
-      def deserialize(type)
-        case type
-          when :string
-            @string ||= lambda { |v| v }
-          when :boolean
-            @boolean ||= lambda { |v| %w(true yes).include?(v.downcase) }
-          when :date
-            @date ||= lambda { |v| Date.parse(v) }
-          when :time
-            @time ||= lambda { |v| Time.parse(v) }
-          when :integer
-            @integer ||= lambda { |v| v.to_i }
-          when :float
-            @float ||= lambda { |v| v.to_f }
-          else
-            nil
+      def deserializer
+        @deserializer ||= case @type
+          when :string  then lambda { |v| v }
+          when :boolean then lambda { |v| %w(true yes).include?(v.downcase) }
+          when :date    then lambda { |v| Date.parse(v) }
+          when :time    then lambda { |v| Time.parse(v) }
+          when :integer then lambda { |v| v.to_i }
+          when :float   then lambda { |v| v.to_f }
+          else nil
         end
       end
 

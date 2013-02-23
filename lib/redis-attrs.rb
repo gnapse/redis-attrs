@@ -14,6 +14,13 @@ class Redis
       @redis = r
     end
 
+    def self.class_for(type)
+      type = "redis/attrs/#{type}"
+      type = ActiveSupport::Inflector.camelize(type)
+      type = ActiveSupport::Inflector.constantize(type)
+      type
+    end
+
     module ClassMethods
       def redis
         Redis::Attrs.redis
@@ -25,7 +32,8 @@ class Redis
 
       def redis_attrs(attrs)
         attrs.each do |name, type|
-          Redis::Attrs::Base.new(self, name, type)
+          klass = Redis::Attrs::class_for(type)
+          klass.new(self, name, type)
         end
       end
     end

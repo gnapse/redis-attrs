@@ -7,12 +7,11 @@ class Redis
       def initialize(klass, name, type)
         @klass, @name, @type = klass, name, type
         attr = self
-        raise ArgumentError, "[Redis Attrs] Invalid type #{type}" if deserializer.nil?
 
         # Define the getter
         klass.send(:define_method, name) do
           value = redis.get("#{klass.redis_key_prefix}:#{id}:#{name}")
-          value.nil? ? nil : attr.deserializer.call(value)
+          value.nil? ? nil : attr.deserialize(value)
         end
 
         # Define the setter
@@ -29,18 +28,17 @@ class Redis
         Redis::Attrs.redis
       end
 
-      def deserializer
-        @deserializer ||= case @type
-          when :string  then lambda { |v| v }
-          when :boolean then lambda { |v| %w(true yes).include?(v.downcase) }
-          when :date    then lambda { |v| Date.parse(v) }
-          when :time    then lambda { |v| Time.parse(v) }
-          when :integer then lambda { |v| v.to_i }
-          when :float   then lambda { |v| v.to_f }
-          else nil
-        end
+      def deserialize(value)
+        value
       end
 
     end
+
+    autoload :String,  'redis-attrs/string'
+    autoload :Boolean, 'redis-attrs/boolean'
+    autoload :Date,    'redis-attrs/date'
+    autoload :Time,    'redis-attrs/time'
+    autoload :Integer, 'redis-attrs/integer'
+    autoload :Float,   'redis-attrs/float'
   end
 end

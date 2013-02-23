@@ -3,6 +3,7 @@ require "time"
 class Redis
   module Attrs
     class Base
+      attr_reader :klass, :name, :type
 
       def initialize(klass, name, type)
         @klass, @name, @type = klass, name, type

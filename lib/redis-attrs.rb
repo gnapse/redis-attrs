@@ -30,10 +30,13 @@ class Redis
         @redis_key_refix ||= ActiveSupport::Inflector.underscore(self.name)
       end
 
-      def redis_attrs(attrs)
+      def redis_attrs(attrs = nil)
+        @redis_attrs ||= []
+        return @redis_attrs if attrs.nil?
         attrs.each do |name, type|
           klass = Redis::Attrs::class_for(type)
-          klass.new(self, name, type)
+          attr = klass.new(self, name, type)
+          @redis_attrs << attr
         end
       end
     end

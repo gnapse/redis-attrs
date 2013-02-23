@@ -38,6 +38,15 @@ describe Redis::Attrs do
         film.should respond_to("#{attr}=")
       end
     end
+
+    context "with no paremeters" do
+      it "returns a list of all Redis attributes defined for the class" do
+        Film.redis_attrs.should be_a(Array)
+        Film.redis_attrs.count.should == 6
+        Film.redis_attrs.map(&:name).should == [:title, :released_on, :length, :created_at, :rating, :featured]
+        Film.redis_attrs.map(&:type).should == [:string, :date, :integer, :time, :float, :boolean]
+      end
+    end
   end
 
   describe "getters" do

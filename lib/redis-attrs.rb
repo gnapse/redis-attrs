@@ -19,9 +19,11 @@ class Redis
         Redis::Attrs.redis
       end
 
-      def redis_attrs(attrs)
-        class_name = ActiveSupport::Inflector.underscore(self.name)
+      def redis_key_prefix
+        @redis_key_refix ||= ActiveSupport::Inflector.underscore(self.name)
+      end
 
+      def redis_attrs(attrs)
         attrs.each do |name, type|
           deserializer = deserialize(type)
           if deserializer.nil?
@@ -31,16 +33,16 @@ class Redis
 
           # Define the getter
           define_method(name) do
-            value = redis.get("#{class_name}:#{id}:#{name}")
+            value = redis.get("#{self.class.redis_key_prefix}:#{id}:#{name}")
             value.nil? ? nil : deserializer.call(value)
           end
 
           # Define the setter
           define_method("#{name}=") do |value|
             if value.nil?
-              redis.del("#{class_name}:#{id}:#{name}")
+              redis.del("#{self.class.redis_key_prefix}:#{id}:#{name}")
             else
-              redis.set("#{class_name}:#{id}:#{name}", value)
+              redis.set("#{self.class.redis_key_prefix}:#{id}:#{name}", value)
             end
           end
 

@@ -16,7 +16,10 @@ class Redis
 
         # Define the getter
         klass.send(:define_method, name) do
-          @object ||= attr_class.new attr.redis_key(id), redis
+          instance_variable_get("@#{name}") || begin
+            obj = attr_class.new attr.redis_key(id), redis
+            instance_variable_set("@#{name}", obj)
+          end
         end
 
         # TODO: Add support for collection setters

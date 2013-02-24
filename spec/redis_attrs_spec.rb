@@ -121,38 +121,31 @@ describe Redis::Attrs do
 
   describe "collection attributes" do
     it "support lists" do
-      # Lists
       Film.redis_attrs cast: :list
       film.cast.should be_empty
-      film.cast << "Ben Affleck" << "Alan Arkin" << "Ben Affleck"
-      film.cast.size.should == 3
+      film.cast = ["Ben Affleck", "Alan Arkin", "John Goodman", "Ben Affleck"]
+      film.cast.size.should == 4
     end
 
     it "support hashes" do
-      # Hashes
       Film.redis_attrs crew: :hash
       film.crew.should be_empty
-      film.crew[:camera] = "Some Guy"
-      film.crew[:makeup] = "Some Other Guy"
-      film.crew.size.should == 2
-      film.crew.keys.should == %w(camera makeup)
+      film.crew = { costume: "John Doe", makeup: "Jane Doe", camera: "James Doe" }
+      film.crew.size.should == 3
+      film.crew.keys.should == %w(costume makeup camera)
     end
 
     it "support sets" do
-      # Sets
       Film.redis_attrs producers: :set
       film.producers.should be_empty
-      film.producers << "Ben Affleck" << "George Clooney" << "Ben Affleck"
-      film.producers.size.should == 2
+      film.producers = ["Grant Heslov", "Ben Affleck", "George Clooney", "Ben Affleck"]
+      film.producers.size.should == 3
     end
 
     it "support sorted sets" do
-      # Sorted Sets
       Film.redis_attrs rankings: :sorted_set
       film.rankings.should be_empty
-      film.rankings["oscars"] = 3
-      film.rankings["golden globe"] = 1
-      film.rankings["bafta"] = 2
+      film.rankings = { "oscars" => 3, "golden globe" => 1, "bafta" => 2 }
       film.rankings.first.should == "golden globe"
       film.rankings.last.should == "oscars"
       film.rankings.members.should == ["golden globe", "bafta", "oscars"]

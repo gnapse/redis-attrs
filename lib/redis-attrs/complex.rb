@@ -23,6 +23,12 @@ class Redis
         end
 
         # TODO: Add support for collection setters
+        if self.respond_to?(:setter)
+          klass.send(:define_method, "#{name}=") do |value|
+            obj = send(name)
+            attr.setter(id, obj, value)
+          end
+        end
       end
 
       def self.redis_object_class

@@ -58,10 +58,10 @@ class Redis
         # Complex types
         counter:    Redis::Attrs::Complex,
         lock:       Redis::Attrs::Complex,
-        hash:       Redis::Attrs::Complex,
-        list:       Redis::Attrs::Complex,
-        set:        Redis::Attrs::Complex,
-        sorted_set: Redis::Attrs::Complex,
+        hash:       Redis::Attrs::Hash,
+        list:       Redis::Attrs::List,
+        set:        Redis::Attrs::List,
+        sorted_set: Redis::Attrs::Hash,
       }
     end
 
@@ -80,7 +80,8 @@ class Redis
     autoload :Time,    'redis-attrs/time'
     autoload :Integer, 'redis-attrs/integer'
     autoload :Float,   'redis-attrs/float'
-
-    autoload :Complex,   'redis-attrs/complex'
+    autoload :Complex, 'redis-attrs/complex'
+    autoload :List,    'redis-attrs/list'
+    autoload :Hash,    'redis-attrs/hash'
   end
 end

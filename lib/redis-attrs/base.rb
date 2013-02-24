@@ -12,6 +12,7 @@ class Redis
       end
 
       def redis_key(id)
+        raise "id attribute is required in order to properly store Redis attributes" if id.nil?
         "#{klass.redis_key_prefix}:#{id}:#{name}"
       end
     end

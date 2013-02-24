@@ -2,11 +2,10 @@ require "time"
 
 class Redis
   module Attrs
-    class Scalar
-      attr_reader :klass, :name, :type
+    class Scalar < Base
 
       def initialize(klass, name, type)
-        @klass, @name, @type = klass, name, type
+        super
         attr = self
 
         # Define the getter
@@ -24,10 +23,6 @@ class Redis
             redis.set("#{klass.redis_key_prefix}:#{id}:#{name}", value)
           end
         end
-      end
-
-      def redis
-        Redis::Attrs.redis
       end
 
       def serialize(value)

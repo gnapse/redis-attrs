@@ -63,6 +63,7 @@ class Redis
       @supported_types[type] = klass
     end
 
+    autoload :Base,    'redis-attrs/base'
     autoload :Scalar,  'redis-attrs/scalar'
     autoload :String,  'redis-attrs/string'
     autoload :Boolean, 'redis-attrs/boolean'

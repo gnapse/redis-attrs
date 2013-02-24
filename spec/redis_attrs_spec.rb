@@ -164,5 +164,10 @@ describe Redis::Attrs do
       film.awards_count.incr
       film.awards_count.value.should == 1
     end
+
+    it "support locks" do
+      Film.redis_attrs playing: :lock
+      film.playing.lock {  }
+    end
   end
 end

@@ -2,6 +2,8 @@ require "redis/hash_key"
 require "redis/list"
 require "redis/set"
 require "redis/sorted_set"
+require "redis/lock"
+require "redis/counter"
 
 class Redis
   module Attrs
@@ -22,6 +24,8 @@ class Redis
 
       def self.redis_object_class
         @@redis_object_class ||= {
+          lock:       Redis::Lock,
+          counter:    Redis::Counter,
           hash:       Redis::HashKey,
           list:       Redis::List,
           set:        Redis::Set,

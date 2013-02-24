@@ -157,5 +157,12 @@ describe Redis::Attrs do
       film.rankings.last.should == "oscars"
       film.rankings.members.should == ["golden globe", "bafta", "oscars"]
     end
+
+    it "support counters" do
+      Film.redis_attrs awards_count: :counter
+      film.awards_count.value.should == 0
+      film.awards_count.incr
+      film.awards_count.value.should == 1
+    end
   end
 end

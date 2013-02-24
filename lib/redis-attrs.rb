@@ -56,6 +56,8 @@ class Redis
         float:   Redis::Attrs::Float,
 
         # Complex types
+        counter:    Redis::Attrs::Complex,
+        lock:       Redis::Attrs::Complex,
         hash:       Redis::Attrs::Complex,
         list:       Redis::Attrs::Complex,
         set:        Redis::Attrs::Complex,

@@ -13,13 +13,6 @@ class Redis
       @redis = r
     end
 
-    def self.class_for(type)
-      type = "redis/attrs/#{type}"
-      type = ActiveSupport::Inflector.camelize(type)
-      type = ActiveSupport::Inflector.constantize(type)
-      type
-    end
-
     module ClassMethods
       def redis
         Redis::Attrs.redis
@@ -33,7 +26,8 @@ class Redis
         @redis_attrs ||= []
         return @redis_attrs if attrs.nil?
         attrs.each do |name, type|
-          klass = Redis::Attrs::class_for(type)
+          klass = Redis::Attrs::supported_types[type]
+          raise ArgumentError, "Unknown Redis::Attr type #{type}" if klass.nil?
           attr = klass.new(self, name, type)
           @redis_attrs << attr
         end
@@ -49,6 +43,24 @@ class Redis
     def self.included(receiver)
       receiver.extend(ClassMethods)
       receiver.send(:include, InstanceMethods)
+    end
+
+    def self.supported_types
+      @supported_types ||= {
+        string:  Redis::Attrs::String,
+        boolean: Redis::Attrs::Boolean,
+        date:    Redis::Attrs::Date,
+        time:    Redis::Attrs::Time,
+        integer: Redis::Attrs::Integer,
+        float:   Redis::Attrs::Float,
+      }
+    end
+
+    def self.register_type(type, klass)
+      type = type.to_sym
+      raise ArgumentError, "Redis attr type #{type} is already defined" if supported_types.include?(type)
+      raise ArgumentError, "Class implementing new type #{type} must be a subclass of Redis::Attrs::Scalar" unless klass.ancestors.include?(Scalar)
+      @supported_types[type] = klass
     end
 
     autoload :Scalar,  'redis-attrs/scalar'

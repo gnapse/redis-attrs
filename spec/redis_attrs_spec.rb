@@ -1,4 +1,5 @@
 require "spec_helper"
+require "json"
 
 class Film
   include Redis::Attrs
@@ -10,7 +11,18 @@ class Film
   end
 end
 
+class JSONScalar < Redis::Attrs::Scalar
+  def serialize(value)
+    value.to_json
+  end
+
+  def deserialize(value)
+    JSON.parse(value)
+  end
+end
+
 describe Redis::Attrs do
+  let(:redis) { Redis::Attrs.redis }
   let(:film) { Film.new }
 
   it "has a version number" do
@@ -78,8 +90,6 @@ describe Redis::Attrs do
   end
 
   describe "setters" do
-    let(:redis) { Redis::Attrs.redis }
-
     it "set the corresponding key in Redis" do
       film.title = "Argo"
       redis.get("film:1:title").should == "Argo"
@@ -95,6 +105,17 @@ describe Redis::Attrs do
       film.rating = nil
       redis.keys.should_not include("film:1:rating")
       redis.get("film:1:rating").should be_nil
+    end
+  end
+
+  describe ".register_type" do
+    it "allows to define support for scalar value types not covered by the library" do
+      Redis::Attrs.register_type(:json, JSONScalar)
+      Film.redis_attrs director: :json
+      film.director = { first_name: "Ben", last_name: "Affleck" }
+      redis.keys.should include("film:1:director")
+      redis.get("film:1:director").should == { first_name: "Ben", last_name: "Affleck" }.to_json
+      film.director.should == { "first_name" => "Ben", "last_name" => "Affleck" }
     end
   end
 end

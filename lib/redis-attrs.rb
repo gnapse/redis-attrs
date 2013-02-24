@@ -47,12 +47,19 @@ class Redis
 
     def self.supported_types
       @supported_types ||= {
+        # Scalar types
         string:  Redis::Attrs::String,
         boolean: Redis::Attrs::Boolean,
         date:    Redis::Attrs::Date,
         time:    Redis::Attrs::Time,
         integer: Redis::Attrs::Integer,
         float:   Redis::Attrs::Float,
+
+        # Complex types
+        hash:       Redis::Attrs::Complex,
+        list:       Redis::Attrs::Complex,
+        set:        Redis::Attrs::Complex,
+        sorted_set: Redis::Attrs::Complex,
       }
     end
 
@@ -71,5 +78,7 @@ class Redis
     autoload :Time,    'redis-attrs/time'
     autoload :Integer, 'redis-attrs/integer'
     autoload :Float,   'redis-attrs/float'
+
+    autoload :Complex,   'redis-attrs/complex'
   end
 end

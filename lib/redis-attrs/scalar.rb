@@ -20,6 +20,7 @@ class Redis
           if value.nil?
             redis.del("#{klass.redis_key_prefix}:#{id}:#{name}")
           else
+            value = attr.serialize(value)
             redis.set("#{klass.redis_key_prefix}:#{id}:#{name}", value)
           end
         end
@@ -27,6 +28,10 @@ class Redis
 
       def redis
         Redis::Attrs.redis
+      end
+
+      def serialize(value)
+        value.to_s
       end
 
       def deserialize(value)

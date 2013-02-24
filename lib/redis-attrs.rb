@@ -1,5 +1,4 @@
 require "redis-attrs/version"
-require "redis-attrs/base"
 require "redis"
 require "active_support/inflector"
 
@@ -51,5 +50,13 @@ class Redis
       receiver.extend(ClassMethods)
       receiver.send(:include, InstanceMethods)
     end
+
+    autoload :Scalar,  'redis-attrs/scalar'
+    autoload :String,  'redis-attrs/string'
+    autoload :Boolean, 'redis-attrs/boolean'
+    autoload :Date,    'redis-attrs/date'
+    autoload :Time,    'redis-attrs/time'
+    autoload :Integer, 'redis-attrs/integer'
+    autoload :Float,   'redis-attrs/float'
   end
 end

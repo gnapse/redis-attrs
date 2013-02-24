@@ -2,7 +2,7 @@ require "time"
 
 class Redis
   module Attrs
-    class Base
+    class Scalar
       attr_reader :klass, :name, :type
 
       def initialize(klass, name, type)
@@ -34,12 +34,5 @@ class Redis
       end
 
     end
-
-    autoload :String,  'redis-attrs/string'
-    autoload :Boolean, 'redis-attrs/boolean'
-    autoload :Date,    'redis-attrs/date'
-    autoload :Time,    'redis-attrs/time'
-    autoload :Integer, 'redis-attrs/integer'
-    autoload :Float,   'redis-attrs/float'
   end
 end

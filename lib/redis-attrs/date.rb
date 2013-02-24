@@ -1,6 +1,6 @@
 class Redis
   module Attrs
-    class Date < Base
+    class Date < Scalar
       def deserialize(value)
         value.nil? ? nil : ::Date.parse(value)
       end

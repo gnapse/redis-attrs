@@ -1,6 +1,6 @@
 class Redis
   module Attrs
-    class Integer < Base
+    class Integer < Scalar
       def deserialize(value)
         value.nil? ? nil : value.to_i
       end

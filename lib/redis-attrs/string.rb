@@ -1,6 +1,6 @@
 class Redis
   module Attrs
-    class String < Base
+    class String < Scalar
     end
   end
 end

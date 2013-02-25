@@ -4,6 +4,7 @@ require "redis/set"
 require "redis/sorted_set"
 require "redis/lock"
 require "redis/counter"
+require "redis-attrs/objects_extensions"
 
 class Redis
   module Attrs
@@ -36,8 +37,8 @@ class Redis
           lock:       Redis::Lock,
           counter:    Redis::Counter,
           hash:       Redis::HashKey,
-          list:       Redis::List,
-          set:        Redis::Set,
+          list:       Redis::Attrs::FilteredList,
+          set:        Redis::Attrs::FilteredSet,
           sorted_set: Redis::SortedSet,
         }
       end

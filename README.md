@@ -133,6 +133,23 @@ it must be declared with the singular version of the method `redis_attrs`, like 
 For more details about the supported configuration options for each of the complex
 data types, please refer to the [redis-objects][redis-objects] gem.
 
+### Filtering collection values
+
+There's an attribute configuration option for lists and sets, the `:filter` option,
+that allows the user to define a function that will modify the items upon insertion
+into the collection.
+
+    class Film
+      redis_attr :genres, :set, :filter => lambda { |v| v.strip.downcase.gsub(/\s+/, ' ') }
+    end
+
+After the above declaration we could do:
+
+    >> film = Film.new(1)
+    >> film.genres = ["Action ", "  drama", "film   Noir", "Drama", "Film noir "]
+    >> puts film.genres.members.sort
+    ["action", "drama", "film noir"]
+
 ## Contributing
 
 1. Fork it

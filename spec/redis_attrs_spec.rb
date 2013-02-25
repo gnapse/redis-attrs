@@ -162,5 +162,11 @@ describe Redis::Attrs do
       Film.redis_attrs playing: :lock
       film.playing.lock {  }
     end
+
+    it "support specifying configuration options" do
+      require "active_support/core_ext/numeric/time"
+      Film.redis_attr :watching, :lock, :expiration => 3.hours
+      film.watching.options[:expiration].should == 3.hours
+    end
   end
 end

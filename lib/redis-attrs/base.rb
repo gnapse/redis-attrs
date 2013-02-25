@@ -1,10 +1,10 @@
 class Redis
   module Attrs
     class Base
-      attr_reader :klass, :name, :type
+      attr_reader :klass, :name, :type, :options
 
-      def initialize(klass, name, type)
-        @klass, @name, @type = klass, name, type
+      def initialize(klass, name, type, options)
+        @klass, @name, @type, @options = klass, name, type, options
       end
 
       def redis

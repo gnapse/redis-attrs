@@ -26,11 +26,16 @@ class Redis
         @redis_attrs ||= []
         return @redis_attrs if attrs.nil?
         attrs.each do |name, type|
-          klass = Redis::Attrs::supported_types[type]
-          raise ArgumentError, "Unknown Redis::Attr type #{type}" if klass.nil?
-          attr = klass.new(self, name, type)
-          @redis_attrs << attr
+          redis_attr name, type
         end
+      end
+
+      def redis_attr(name, type, options = {})
+        @redis_attrs ||= []
+        klass = Redis::Attrs::supported_types[type]
+        raise ArgumentError, "Unknown Redis::Attr type #{type}" if klass.nil?
+        attr = klass.new(self, name, type, options)
+        @redis_attrs << attr
       end
     end
 

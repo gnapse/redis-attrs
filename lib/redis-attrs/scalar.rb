@@ -4,7 +4,7 @@ class Redis
   module Attrs
     class Scalar < Base
 
-      def initialize(klass, name, type)
+      def initialize(klass, name, type, options)
         super
         attr = self
 

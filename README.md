@@ -121,6 +121,18 @@ scalar value, by being serialized as JSON.
     >> puts Redis::Attrs.redis.get("film:1:director")
     {"first_name":"Ben","last_name":"Affleck"}
 
+### Attribute configuration options
+
+The complex attribute types support some configuration options, mostly specific to
+each type.  When an attribute needs to be configured with some of these options, then
+it must be declared with the singular version of the method `redis_attrs`, like below:
+
+    redis_attr :crawl, :lock, :expiration => 15.minutes
+    redis_attr :cast, :list, :marshal => true
+
+For more details about the supported configuration options for each of the complex
+data types, please refer to the [redis-objects][redis-objects] gem.
+
 ## Contributing
 
 1. Fork it

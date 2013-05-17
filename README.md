@@ -1,5 +1,7 @@
 # Redis::Attrs - Add attributes to Ruby classes backed by Redis
 
+[![Code Climate](https://codeclimate.com/github/gnapse/redis-attrs.png)](https://codeclimate.com/github/gnapse/redis-attrs)
+
 This gem is an amalgamation of the ideas found within the [redis_props][redis_props]
 and [redis-objects][redis-objects] gems, plus a few new ideas here and there.  It
 provides a way to define, on any Ruby class, some attributes that are backed by

@@ -39,43 +39,45 @@ Or install it yourself as:
 
 Start by defining some attributes on your class:
 
-    class Film
-      include Redis::Attrs
-      redis_attrs :title => :string, :length => :integer
-      redis_attrs :released_on => :date, :cast => :list
+```ruby
+class Film
+  include Redis::Attrs
+  redis_attrs :title => :string, :length => :integer
+  redis_attrs :released_on => :date, :cast => :list
 
-      # Remember that the objects need an id for this to work
-      attr_reader :id
-      def initialize(id)
-        @id = id
-      end
+  # Remember that the objects need an id for this to work
+  attr_reader :id
+  def initialize(id)
+    @id = id
+  end
 
-      def presentation_title
-        "#{title} (#{released_on.year})"
-      end
-    end
+  def presentation_title
+    "#{title} (#{released_on.year})"
+  end
+end
+```
 
 Then you can use those attributes as you would regularly, but internally they are
 reading from and writing to Redis.
 
-    >> film = Film.new(3)
-    >> film.title = "Argo"
-    >> film.released_on = "2012-10-12"
-    >> puts film.presentation_title
-    Argo (2012)
-    >> puts film.cast.size
-    0
-    >> film.cast = ["Ben Affleck", "Alan Arkin", "Brian Cranston"]
-    >> puts film.cast.size
-    3
-    >> puts film.cast[-3]
-    Ben Affleck
+```ruby
+>> film = Film.new(3)
+>> film.title = "Argo"
+>> film.released_on = "2012-10-12"
+>> puts film.presentation_title
+Argo (2012)
+>> puts film.cast.size
+0
+>> film.cast = ["Ben Affleck", "Alan Arkin", "Brian Cranston"]
+>> puts film.cast.size
+3
+>> puts film.cast[-3]
+Ben Affleck
+```
 
 `Redis::Attrs` will work on _any_ class that provides an `id` method that returns
 a unique value.  `Redis::Attrs` will automatically create keys that are unique to
-each object, in the format:
-
-    class_name:id:attr_name
+each object, in the format `class_name:id:attr_name`.
 
 ### Supported types
 
@@ -99,29 +101,33 @@ The `serialize` and `deserialize` methods define how this process is done.  Afte
 registering the type with `Redis::Attrs`, a new attribute is added to the class
 `Film` defined above.
 
-    class JSONScalar < Redis::Attrs::Scalar
-      def serialize(value)
-        value.to_json
-      end
+```ruby
+class JSONScalar < Redis::Attrs::Scalar
+  def serialize(value)
+    value.to_json
+  end
 
-      def deserialize(value)
-        JSON.parse(value)
-      end
-    end
+  def deserialize(value)
+    JSON.parse(value)
+  end
+end
 
-    Redis::Attrs.register_type(:json, JSONScalar)
+Redis::Attrs.register_type(:json, JSONScalar)
 
-    class Film
-      redis_attrs :director => :json
-    end
+class Film
+  redis_attrs :director => :json
+end
+```
 
 After the definitions above, more complex data structures could be stored as a single
 scalar value, by being serialized as JSON.
 
-    >> film = Film.new(1)
-    >> film.director = { "first_name" => "Ben", "last_name" => "Affleck" }
-    >> puts Redis::Attrs.redis.get("film:1:director")
-    {"first_name":"Ben","last_name":"Affleck"}
+```ruby
+>> film = Film.new(1)
+>> film.director = { "first_name" => "Ben", "last_name" => "Affleck" }
+>> puts Redis::Attrs.redis.get("film:1:director")
+{"first_name":"Ben","last_name":"Affleck"}
+```
 
 ### Attribute configuration options
 
@@ -129,8 +135,10 @@ The complex attribute types support some configuration options, mostly specific 
 each type.  When an attribute needs to be configured with some of these options, then
 it must be declared with the singular version of the method `redis_attrs`, like below:
 
-    redis_attr :crawl, :lock, :expiration => 15.minutes
-    redis_attr :cast, :list, :marshal => true
+```ruby
+redis_attr :crawl, :lock, :expiration => 15.minutes
+redis_attr :cast, :list, :marshal => true
+```
 
 For more details about the supported configuration options for each of the complex
 data types, please refer to the [redis-objects][redis-objects] gem.
@@ -141,16 +149,20 @@ There's an attribute configuration option for lists and sets, the `:filter` opti
 that allows the user to define a function that will modify the items upon insertion
 into the collection.
 
-    class Film
-      redis_attr :genres, :set, :filter => lambda { |v| v.strip.downcase.gsub(/\s+/, ' ') }
-    end
+```ruby
+class Film
+  redis_attr :genres, :set, :filter => lambda { |v| v.strip.downcase.gsub(/\s+/, ' ') }
+end
+```
 
 After the above declaration we could do:
 
-    >> film = Film.new(1)
-    >> film.genres = ["Action ", "  drama", "film   Noir", "Drama", "Film noir "]
-    >> puts film.genres.members.sort
-    ["action", "drama", "film noir"]
+```ruby
+>> film = Film.new(1)
+>> film.genres = ["Action ", "  drama", "film   Noir", "Drama", "Film noir "]
+>> puts film.genres.members.sort
+["action", "drama", "film noir"]
+```
 
 ## Contributing
 

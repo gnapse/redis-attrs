@@ -26,37 +26,37 @@ describe Redis::Attrs do
   let(:film) { Film.new }
 
   it "has a version number" do
-    Redis::Attrs::VERSION.should_not be_nil
+    expect(Redis::Attrs::VERSION).not_to be_nil
   end
 
   context "when included in a class" do
     it "makes the class respond to .redis_attrs" do
-      Film.should respond_to(:redis_attrs)
+      expect(Film).to respond_to(:redis_attrs)
     end
 
     it "provides the class and its instances with a .redis interface" do
-      Film.should respond_to(:redis)
-      film.should respond_to(:redis)
+      expect(Film).to respond_to(:redis)
+      expect(film).to respond_to(:redis)
 
-      Film.redis.should be_a(Redis)
-      Film.redis.should equal(film.redis)
+      expect(Film.redis).to be_a(Redis)
+      expect(Film.redis).to equal(film.redis)
     end
   end
 
   describe ".redis_attrs" do
     it "adds getters and setters for the attributes defined" do
       %w(title released_on length created_at rating featured).each do |attr|
-        film.should respond_to(attr)
-        film.should respond_to("#{attr}=")
+        expect(film).to respond_to(attr)
+        expect(film).to respond_to("#{attr}=")
       end
     end
 
     context "with no paremeters" do
       it "returns a list of all Redis attributes defined for the class" do
-        Film.redis_attrs.should be_a(Array)
-        Film.redis_attrs.count.should == 6
-        Film.redis_attrs.map(&:name).should == [:title, :released_on, :length, :created_at, :rating, :featured]
-        Film.redis_attrs.map(&:type).should == [:string, :date, :integer, :time, :float, :boolean]
+        expect(Film.redis_attrs).to be_a(Array)
+        expect(Film.redis_attrs.count).to eq(6)
+        expect(Film.redis_attrs.map(&:name)).to eq([:title, :released_on, :length, :created_at, :rating, :featured])
+        expect(Film.redis_attrs.map(&:type)).to eq([:string, :date, :integer, :time, :float, :boolean])
       end
     end
   end
@@ -65,46 +65,46 @@ describe Redis::Attrs do
     let(:now) { Time.parse("2013-02-22 22:31:12 -0500") }
 
     it "return nil by default" do
-      film.title.should be_nil
-      film.released_on.should be_nil
-      film.length.should be_nil
+      expect(film.title).to be_nil
+      expect(film.released_on).to be_nil
+      expect(film.length).to be_nil
     end
 
     it "return whatever was last set with the corresponding setter" do
       film.title = "Argo"
-      film.title.should == "Argo"
+      expect(film.title).to eq("Argo")
     end
 
     it "keep the original value type" do
       film.released_on = Date.parse("2012-10-12")
-      film.released_on.should == Date.parse("2012-10-12")
+      expect(film.released_on).to eq(Date.parse("2012-10-12"))
       film.created_at = now
-      film.created_at.should == now
+      expect(film.created_at).to eq(now)
       film.length = 135
-      film.length.should == 135
+      expect(film.length).to eq(135)
       film.rating = 8.2
-      film.rating.should == 8.2
+      expect(film.rating).to eq(8.2)
       film.featured = true
-      film.featured.should == true
+      expect(film.featured).to eq(true)
     end
   end
 
   describe "setters" do
     it "set the corresponding key in Redis" do
       film.title = "Argo"
-      redis.get("film:1:title").should == "Argo"
+      expect(redis.get("film:1:title")).to eq("Argo")
 
       film.rating = 8.1
-      redis.get("film:1:rating").should == "8.1"
+      expect(redis.get("film:1:rating")).to eq("8.1")
     end
 
     it "unset the key when being assigned nil" do
       film.rating = 8.1
-      redis.keys.should include("film:1:rating")
+      expect(redis.keys).to include("film:1:rating")
 
       film.rating = nil
-      redis.keys.should_not include("film:1:rating")
-      redis.get("film:1:rating").should be_nil
+      expect(redis.keys).not_to include("film:1:rating")
+      expect(redis.get("film:1:rating")).to be_nil
     end
   end
 
@@ -113,49 +113,49 @@ describe Redis::Attrs do
       Redis::Attrs.register_type(:json, JSONScalar)
       Film.redis_attrs director: :json
       film.director = { first_name: "Ben", last_name: "Affleck" }
-      redis.keys.should include("film:1:director")
-      redis.get("film:1:director").should == { first_name: "Ben", last_name: "Affleck" }.to_json
-      film.director.should == { "first_name" => "Ben", "last_name" => "Affleck" }
+      expect(redis.keys).to include("film:1:director")
+      expect(redis.get("film:1:director")).to eq({ first_name: "Ben", last_name: "Affleck" }.to_json)
+      expect(film.director).to eq({ "first_name" => "Ben", "last_name" => "Affleck" })
     end
   end
 
   describe "collection attributes" do
     it "support lists" do
       Film.redis_attrs cast: :list
-      film.cast.should be_empty
+      expect(film.cast).to be_empty
       film.cast = ["Ben Affleck", "Alan Arkin", "John Goodman", "Ben Affleck"]
-      film.cast.size.should == 4
+      expect(film.cast.size).to eq(4)
     end
 
     it "support hashes" do
       Film.redis_attrs crew: :hash
-      film.crew.should be_empty
+      expect(film.crew).to be_empty
       film.crew = { costume: "John Doe", makeup: "Jane Doe", camera: "James Doe" }
-      film.crew.size.should == 3
-      film.crew.keys.should == %w(costume makeup camera)
+      expect(film.crew.size).to eq(3)
+      expect(film.crew.keys).to eq(%w(costume makeup camera))
     end
 
     it "support sets" do
       Film.redis_attrs producers: :set
-      film.producers.should be_empty
+      expect(film.producers).to be_empty
       film.producers = ["Grant Heslov", "Ben Affleck", "George Clooney", "Ben Affleck"]
-      film.producers.size.should == 3
+      expect(film.producers.size).to eq(3)
     end
 
     it "support sorted sets" do
       Film.redis_attrs rankings: :sorted_set
-      film.rankings.should be_empty
+      expect(film.rankings).to be_empty
       film.rankings = { "oscars" => 3, "golden globe" => 1, "bafta" => 2 }
-      film.rankings.first.should == "golden globe"
-      film.rankings.last.should == "oscars"
-      film.rankings.members.should == ["golden globe", "bafta", "oscars"]
+      expect(film.rankings.first).to eq("golden globe")
+      expect(film.rankings.last).to eq("oscars")
+      expect(film.rankings.members).to eq(["golden globe", "bafta", "oscars"])
     end
 
     it "support counters" do
       Film.redis_attrs awards_count: :counter
-      film.awards_count.value.should == 0
+      expect(film.awards_count.value).to eq(0)
       film.awards_count.incr
-      film.awards_count.value.should == 1
+      expect(film.awards_count.value).to eq(1)
     end
 
     it "support locks" do
@@ -166,17 +166,17 @@ describe Redis::Attrs do
     it "support specifying configuration options" do
       require "active_support/core_ext/numeric/time"
       Film.redis_attr :watching, :lock, expiration: 3.hours
-      film.watching.options[:expiration].should == 3.hours
+      expect(film.watching.options[:expiration]).to eq(3.hours)
     end
 
     it "supports filtering the values inserted into a list or set" do
       Film.redis_attr :genres, :set, filter: ->(genre) { genre.strip.downcase.gsub(/\s+/, ' ') }
       film.genres = ["Action ", "  drama", "film   Noir", "Drama", "Film noir "]
-      film.genres.members.sort.should == ["action", "drama", "film noir"]
+      expect(film.genres.members.sort).to eq(["action", "drama", "film noir"])
       film.genres << " ACTION  " << "Western"
-      film.genres.should_not include("Western")
-      film.genres.should include("western")
-      film.genres.members.sort.should == ["action", "drama", "film noir", "western"]
+      expect(film.genres).not_to include("Western")
+      expect(film.genres).to include("western")
+      expect(film.genres.members.sort).to eq(["action", "drama", "film noir", "western"])
     end
   end
 end

@@ -67,18 +67,18 @@ describe Redis::Attrs do
   describe "getters" do
     let(:now) { Time.parse("2013-02-22 22:31:12 -0500") }
 
-    it "return nil by default" do
+    it "returns nil by default" do
       expect(film.title).to be_nil
       expect(film.released_on).to be_nil
       expect(film.length).to be_nil
     end
 
-    it "return whatever was last set with the corresponding setter" do
+    it "returns whatever was last set with the corresponding setter" do
       film.title = "Argo"
       expect(film.title).to eq("Argo")
     end
 
-    it "keep the original value type" do
+    it "keeps the original value type" do
       film.released_on = Date.parse("2012-10-12")
       expect(film.released_on).to eq(Date.parse("2012-10-12"))
       film.created_at = now
@@ -93,7 +93,7 @@ describe Redis::Attrs do
   end
 
   describe "setters" do
-    it "set the corresponding key in Redis" do
+    it "sets the corresponding key in Redis" do
       film.title = "Argo"
       expect(redis.get("film:1:title")).to eq("Argo")
 
@@ -101,7 +101,7 @@ describe Redis::Attrs do
       expect(redis.get("film:1:rating")).to eq("8.1")
     end
 
-    it "unset the key when being assigned nil" do
+    it "unsets the key when being assigned nil" do
       film.rating = 8.1
       expect(redis.keys).to include("film:1:rating")
 
@@ -125,14 +125,14 @@ describe Redis::Attrs do
   end
 
   describe "collection attributes" do
-    it "support lists" do
+    it "supports lists" do
       Film.redis_attrs cast: :list
       expect(film.cast).to be_empty
       film.cast = ["Ben Affleck", "Alan Arkin", "John Goodman", "Ben Affleck"]
       expect(film.cast.size).to eq(4)
     end
 
-    it "support hashes" do
+    it "supports hashes" do
       Film.redis_attrs crew: :hash
       expect(film.crew).to be_empty
       film.crew = { costume: "John Doe", makeup: "Jane Doe", camera: "James Doe" }
@@ -140,14 +140,14 @@ describe Redis::Attrs do
       expect(film.crew.keys).to eq(%w(costume makeup camera))
     end
 
-    it "support sets" do
+    it "supports sets" do
       Film.redis_attrs producers: :set
       expect(film.producers).to be_empty
       film.producers = ["Grant Heslov", "Ben Affleck", "George Clooney", "Ben Affleck"]
       expect(film.producers.size).to eq(3)
     end
 
-    it "support sorted sets" do
+    it "supports sorted sets" do
       Film.redis_attrs rankings: :sorted_set
       expect(film.rankings).to be_empty
       film.rankings = { "oscars" => 3, "golden globe" => 1, "bafta" => 2 }
@@ -156,19 +156,19 @@ describe Redis::Attrs do
       expect(film.rankings.members).to eq(["golden globe", "bafta", "oscars"])
     end
 
-    it "support counters" do
+    it "supports counters" do
       Film.redis_attrs awards_count: :counter
       expect(film.awards_count.value).to eq(0)
       film.awards_count.incr
       expect(film.awards_count.value).to eq(1)
     end
 
-    it "support locks" do
+    it "supports locks" do
       Film.redis_attrs playing: :lock
       film.playing.lock {  }
     end
 
-    it "support specifying configuration options" do
+    it "supports specifying configuration options" do
       require "active_support/core_ext/numeric/time"
       Film.redis_attr :watching, :lock, expiration: 3.hours
       expect(film.watching.options[:expiration]).to eq(3.hours)

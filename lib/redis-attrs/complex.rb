@@ -13,7 +13,7 @@ class Redis
       def initialize(klass, name, type, options)
         super
         attr = self
-        attr_class = self.class.redis_object_class[self.type]
+        attr_class = self.class.redis_object_class[type]
 
         # Define the getter
         klass.send(:define_method, name) do

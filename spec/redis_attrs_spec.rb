@@ -165,12 +165,12 @@ describe Redis::Attrs do
 
     it "support specifying configuration options" do
       require "active_support/core_ext/numeric/time"
-      Film.redis_attr :watching, :lock, :expiration => 3.hours
+      Film.redis_attr :watching, :lock, expiration: 3.hours
       film.watching.options[:expiration].should == 3.hours
     end
 
     it "supports filtering the values inserted into a list or set" do
-      Film.redis_attr :genres, :set, filter: lambda { |genre| genre.strip.downcase.gsub(/\s+/, ' ') }
+      Film.redis_attr :genres, :set, filter: ->(genre) { genre.strip.downcase.gsub(/\s+/, ' ') }
       film.genres = ["Action ", "  drama", "film   Noir", "Drama", "Film noir "]
       film.genres.members.sort.should == ["action", "drama", "film noir"]
       film.genres << " ACTION  " << "Western"

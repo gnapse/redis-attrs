@@ -52,11 +52,14 @@ describe Redis::Attrs do
     end
 
     context "with no paremeters" do
+      let(:attrs) { [:title, :released_on, :length, :created_at, :rating, :featured] }
+      let(:types) { [:string, :date, :integer, :time, :float, :boolean] }
+
       it "returns a list of all Redis attributes defined for the class" do
         expect(Film.redis_attrs).to be_a(Array)
         expect(Film.redis_attrs.count).to eq(6)
-        expect(Film.redis_attrs.map(&:name)).to eq([:title, :released_on, :length, :created_at, :rating, :featured])
-        expect(Film.redis_attrs.map(&:type)).to eq([:string, :date, :integer, :time, :float, :boolean])
+        expect(Film.redis_attrs.map(&:name)).to eq(attrs)
+        expect(Film.redis_attrs.map(&:type)).to eq(types)
       end
     end
   end
@@ -109,12 +112,14 @@ describe Redis::Attrs do
   end
 
   describe ".register_type" do
+    let(:director) { { first_name: "Ben", last_name: "Affleck" } }
+
     it "allows to define support for scalar value types not covered by the library" do
       Redis::Attrs.register_type(:json, JSONScalar)
       Film.redis_attrs director: :json
-      film.director = { first_name: "Ben", last_name: "Affleck" }
+      film.director = director
       expect(redis.keys).to include("film:1:director")
-      expect(redis.get("film:1:director")).to eq({ first_name: "Ben", last_name: "Affleck" }.to_json)
+      expect(redis.get("film:1:director")).to eq(director.to_json)
       expect(film.director).to eq({ "first_name" => "Ben", "last_name" => "Affleck" })
     end
   end

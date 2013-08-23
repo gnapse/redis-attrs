@@ -9,7 +9,7 @@ class Redis
     end
 
     def self.redis=(r)
-      raise ArgumentError, "Redis Attrs: Invalid Redis instance" unless r.is_a?(Redis)
+      raise ArgumentError, "Redis Attrs: Invalid Redis instance" unless r.is_a?(Redis) || r.is_a?(Redis::Namespace)
       @redis = r
     end
 

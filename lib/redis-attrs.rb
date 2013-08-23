@@ -6,7 +6,7 @@ class Redis
   module Attrs
     def self.redis
       @redis || $redis || Redis.current ||
-        raise(NotConnected, "Redis::Objects.redis not set to a Redis.new connection")
+        raise(NotConnected, "Redis::Attrs.redis not set to a valid redis connection")
     end
 
     def self.redis=(r)

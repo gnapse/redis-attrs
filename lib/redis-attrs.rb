@@ -5,11 +5,11 @@ require "active_support/inflector"
 class Redis
   module Attrs
     def self.redis
-      @redis ||= Redis.new
+      @redis || $redis || Redis.current ||
+        raise(NotConnected, "Redis::Objects.redis not set to a Redis.new connection")
     end
 
     def self.redis=(r)
-      raise ArgumentError, "Redis Attrs: Invalid Redis instance" unless r.is_a?(Redis) || r.is_a?(Redis::Namespace)
       @redis = r
     end
 

@@ -8,7 +8,7 @@ class Redis
       end
 
       # Add a member before or after pivot in the list. Redis: LINSERT
-      def insert(where,pivot,value)
+      def insert(where, pivot, value)
         if options[:filter]
           value = options[:filter].call(value)
           pivot = options[:filter].call(pivot)
@@ -22,7 +22,7 @@ class Redis
         super
       end
 
-      def delete(name, count=0)
+      def delete(name, count = 0)
         name = options[:filter].call(name) if options[:filter]
         super
       end

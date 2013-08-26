@@ -5,11 +5,11 @@ require "active_support/inflector"
 class Redis
   module Attrs
     def self.redis
-      @redis ||= Redis.new
+      @redis || $redis || Redis.current ||
+        raise(NotConnected, "Redis::Attrs.redis not set to a valid redis connection")
     end
 
     def self.redis=(r)
-      raise ArgumentError, "Redis Attrs: Invalid Redis instance" unless r.is_a?(Redis)
       @redis = r
     end
 
@@ -19,7 +19,7 @@ class Redis
       end
 
       def redis_key_prefix
-        @redis_key_refix ||= ActiveSupport::Inflector.underscore(self.name)
+        @redis_key_refix ||= ActiveSupport::Inflector.underscore(name)
       end
 
       def redis_attrs(attrs = nil)
@@ -32,7 +32,7 @@ class Redis
 
       def redis_attr(name, type, options = {})
         @redis_attrs ||= []
-        klass = Redis::Attrs::supported_types[type]
+        klass = Redis::Attrs.supported_types[type]
         raise ArgumentError, "Unknown Redis::Attr type #{type}" if klass.nil?
         attr = klass.new(self, name, type, options)
         @redis_attrs << attr
@@ -73,7 +73,9 @@ class Redis
     def self.register_type(type, klass)
       type = type.to_sym
       raise ArgumentError, "Redis attr type #{type} is already defined" if supported_types.include?(type)
-      raise ArgumentError, "Class implementing new type #{type} must be a subclass of Redis::Attrs::Scalar" unless klass.ancestors.include?(Scalar)
+      unless klass.ancestors.include?(Scalar)
+        raise ArgumentError, "Class implementing new type #{type} must be a subclass of Redis::Attrs::Scalar"
+      end
       @supported_types[type] = klass
     end
 

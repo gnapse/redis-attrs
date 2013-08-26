@@ -9,4 +9,9 @@ RSpec.configure do |config|
     Redis::Attrs.redis.flushdb
   end
 
+  # Disallow "should" syntax
+  config.expect_with :rspec do |c|
+    c.syntax = :expect
+  end
+
 end

@@ -35,6 +35,22 @@ Or install it yourself as:
 
     $ gem install redis-attrs
 
+## Setting up the connection
+
+You can include some of the following code snippets at the beginning of your
+app or script.  In case you're using Rails, you can use an initializer.
+
+```ruby
+# Standard connection
+Redis::Attrs.redis = Redis.new
+
+# Connection with specific parameters
+Redis::Attrs.redis = Redis.new(host: 'hostname', port: 8888, password: 'secret')
+
+# You can even use a redis namespace
+Redis::Attrs.redis = Redis::Namespace.new("blah", redis: Redis.new)
+```
+
 ## Usage
 
 Start by defining some attributes on your class:

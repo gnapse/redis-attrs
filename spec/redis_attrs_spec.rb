@@ -179,4 +179,18 @@ describe Redis::Attrs do
       film.genres.members.sort.should == ["action", "drama", "film noir", "western"]
     end
   end
+
+  describe "bugs" do
+    it "should not interfere with the ruby Time class" do
+      class Film
+        def year_test
+          Time.now.year
+        end
+      end
+
+      expect(film.year_test).to eq(Time.now.year)
+    end
+  end
+
+
 end

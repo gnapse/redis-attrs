@@ -44,6 +44,18 @@ class Redis
         Redis::Attrs.redis
       end
 
+      def redis_attrs_init_all_scalar
+        redis.pipelined do
+          self.class.redis_attrs.each do |ra|
+            if ra.is_a?(Scalar) && ra.options[:default]
+              redis.set(ra.redis_key(id), ra.options[:default])
+            else
+              redis.del ra.redis_key(id)
+            end
+          end
+        end
+      end
+
       def redis_attrs_get_all_scalar
         redis_ary = redis.pipelined do
           self.class.redis_attrs.each {|ra| redis.get ra.redis_key(id) if ra.is_a?(Scalar) }

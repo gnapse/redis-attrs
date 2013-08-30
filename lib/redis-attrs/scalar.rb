@@ -11,7 +11,11 @@ class Redis
         # Define the getter
         klass.send(:define_method, name) do
           value = redis.get attr.redis_key(id)
-          value.nil? ? nil : attr.deserialize(value)
+          if value.nil?
+            attr.options && attr.options[:default] ? attr.options[:default] : nil
+          else
+             attr.deserialize(value)
+          end
         end
 
         # Define the setter

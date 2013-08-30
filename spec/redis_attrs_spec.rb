@@ -4,7 +4,9 @@ require "json"
 class Film
   include Redis::Attrs
   redis_attrs title: :string, released_on: :date, length: :integer
-  redis_attrs created_at: :time, rating: :float, featured: :boolean
+  redis_attrs created_at: :time, featured: :boolean, rating: :float
+  redis_attr(:stars, :integer, {default: 0})
+  redis_attr(:scenes, :float, {default: 0.0})
 
   def id
     1
@@ -52,12 +54,12 @@ describe Redis::Attrs do
     end
 
     context "with no paremeters" do
-      let(:attrs) { [:title, :released_on, :length, :created_at, :rating, :featured] }
-      let(:types) { [:string, :date, :integer, :time, :float, :boolean] }
+      let(:attrs) { [:title, :released_on, :length, :created_at, :featured, :rating, :stars, :scenes]}
+      let(:types) { [:string, :date, :integer, :time, :boolean, :float, :integer, :float] }
 
       it "returns a list of all Redis attributes defined for the class" do
         expect(Film.redis_attrs).to be_a(Array)
-        expect(Film.redis_attrs.count).to eq(6)
+        expect(Film.redis_attrs.count).to eq(8)
         expect(Film.redis_attrs.map(&:name)).to eq(attrs)
         expect(Film.redis_attrs.map(&:type)).to eq(types)
       end
@@ -71,6 +73,11 @@ describe Redis::Attrs do
       expect(film.title).to be_nil
       expect(film.released_on).to be_nil
       expect(film.length).to be_nil
+    end
+
+    it "returns the default value if one is set in options" do
+      expect(film.stars).to eq(0)
+      expect(film.scenes).to eq(0.0)
     end
 
     it "returns whatever was last set with the corresponding setter" do
@@ -90,6 +97,17 @@ describe Redis::Attrs do
       film.featured = true
       expect(film.featured).to eq(true)
     end
+
+    it "pipelines and returns all attr values in a hash" do
+      film.title = "Argo"
+      Film.redis_attrs rankings: :sorted_set
+      film.rankings = { "oscars" => 3, "golden globe" => 1, "bafta" => 2 }
+      film.length = 135
+      film.rating = 8.2
+      film.featured = true
+      res = film.redis_attrs_get_all_scalar
+      expect(res).to eq({:title=>"Argo", :length=>135, :featured=>true, :rating=>8.2, :stars=>0, :scenes=>0.0})
+    end
   end
 
   describe "setters" do
@@ -108,6 +126,14 @@ describe Redis::Attrs do
       film.rating = nil
       expect(redis.keys).not_to include("film:1:rating")
       expect(redis.get("film:1:rating")).to be_nil
+    end
+
+    it "should set the default values in one pipelined call." do
+      film.redis_attrs_init_all_scalar
+      expect(film.title).to be_nil
+      expect(film.rating).to be_nil
+      expect(film.stars).to eq(0)
+      expect(film.scenes).to eq(0.0)
     end
   end
 
@@ -184,4 +210,5 @@ describe Redis::Attrs do
       expect(film.genres.members.sort).to eq(["action", "drama", "film noir", "western"])
     end
   end
+
 end

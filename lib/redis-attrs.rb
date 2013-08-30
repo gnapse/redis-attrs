@@ -43,7 +43,25 @@ class Redis
       def redis
         Redis::Attrs.redis
       end
+
+      def redis_attrs_get_all_scalar
+        redis_ary = redis.pipelined do
+          self.class.redis_attrs.each {|ra| redis.get ra.redis_key(id) if ra.is_a?(Scalar) }
+        end
+
+        res_hash = {}
+        self.class.redis_attrs.each_with_index do |ra, i|
+          if redis_ary[i].nil?
+            res_hash[ra.name] = ra.options[:default] if ra.options[:default]
+          else
+            res_hash[ra.name] = ra.deserialize(redis_ary[i])
+          end
+        end
+        res_hash
+      end
+
     end
+
 
     def self.included(receiver)
       receiver.extend(ClassMethods)

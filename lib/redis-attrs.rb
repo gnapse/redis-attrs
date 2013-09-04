@@ -56,7 +56,7 @@ class Redis
         string:  Redis::Attrs::String,
         boolean: Redis::Attrs::Boolean,
         date:    Redis::Attrs::Date,
-        time:    Redis::Attrs::Time,
+        time:    Redis::Attrs::RaTime,
         integer: Redis::Attrs::Integer,
         float:   Redis::Attrs::Float,
 
@@ -82,7 +82,7 @@ class Redis
     autoload :String,  'redis-attrs/string'
     autoload :Boolean, 'redis-attrs/boolean'
     autoload :Date,    'redis-attrs/date'
-    autoload :Time,    'redis-attrs/time'
+    autoload :RaTime,    'redis-attrs/ra_time'
     autoload :Integer, 'redis-attrs/integer'
     autoload :Float,   'redis-attrs/float'
     autoload :Complex, 'redis-attrs/complex'

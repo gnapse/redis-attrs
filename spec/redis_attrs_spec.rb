@@ -43,6 +43,11 @@ describe Redis::Attrs do
       expect(Film.redis).to be_a(Redis)
       expect(Film.redis).to equal(film.redis)
     end
+
+    it "gives instances of the class unique redis keys" do
+      expect(Film.redis_key).to eq("film:1")
+    end
+    
   end
 
   describe ".redis_attrs" do
@@ -53,7 +58,7 @@ describe Redis::Attrs do
       end
     end
 
-    context "with no paremeters" do
+    context "with no parameters" do
       let(:attrs) { [:title, :released_on, :length, :created_at, :featured, :rating, :stars, :scenes]}
       let(:types) { [:string, :date, :integer, :time, :boolean, :float, :integer, :float] }
 

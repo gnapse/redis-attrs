@@ -45,9 +45,9 @@ describe Redis::Attrs do
     end
 
     it "gives instances of the class unique redis keys" do
-      expect(Film.redis_key).to eq("film:1")
+      expect(film.redis_key).to eq("film:1")
     end
-    
+
   end
 
   describe ".redis_attrs" do

@@ -45,7 +45,7 @@ class Redis
       end
 
       def redis_key
-        redis_key_prefix+":#{id}"
+        self.class.redis_key_prefix+":#{id}"
       end
 
       def redis_attrs_init_all_scalar
